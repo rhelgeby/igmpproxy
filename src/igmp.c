@@ -121,10 +121,11 @@ void acceptIgmp(int recvlen) {
     src       = ip->ip_src.s_addr;
     dst       = ip->ip_dst.s_addr;
 
-    /* filter local multicast 239.255.255.250 */
-    if (dst == htonl(0xEFFFFFFA))
+    /* filter local multicast 239.255.255.250 and 224.0.0.0/8 */
+    if (dst == htonl(0xEFFFFFFA) || (htonl(dst) & 0xFFFFFF00) == 0xE0000000)
     {
-        my_log(LOG_NOTICE, 0, "The IGMP message was local multicast. Ignoring.");
+        my_log(LOG_NOTICE, 0, "The IGMP message was local multicast. Ignoring message from %s to %s.",
+            inetFmt(src, s1), inetFmt(dst, s2));
         return;
     }
 
